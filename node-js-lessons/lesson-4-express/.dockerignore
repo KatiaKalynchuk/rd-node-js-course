@@ -1,0 +1,21 @@
+# 🔁 Загальне
+.git
+.gitignore
+README.md
+LICENSE
+*.log
+
+# 📦 Локальні модулі
+node_modules
+npm-debug.log
+
+# 🏗️ Збірочні артефакти (залишаємо лише dist/)
+build.mjs
+eslint.config.js
+dist/*.map
+
+# 🗂️ IDE/редактори
+.vscode/
+.idea/
+*.swp
+*.DS_Store
