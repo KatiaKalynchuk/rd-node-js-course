@@ -43,10 +43,6 @@ export class Container {
 
     this.#registered.set(token, member);
   }
-
-  has(token: any): boolean {
-    return this.#registered.has(token);
-  }
 }
 
 export const container = new Container();

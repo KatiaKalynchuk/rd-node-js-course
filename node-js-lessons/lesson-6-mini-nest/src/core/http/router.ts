@@ -7,29 +7,6 @@ import { FiltersMiddleware } from './middlewares/filters.middleware';
 import { asyncHandler } from './async.handler';
 import MetadataKeys from '../decorators/keys';
 
-function loadModuleTree(moduleClass: any, visited = new Set()) {
-  if (visited.has(moduleClass)) return;
-  visited.add(moduleClass);
-
-  const meta = Reflect.getMetadata(MetadataKeys.MODULE, moduleClass);
-  if (!meta) return;
-
-  // Рекурсивно завантажити імпорти
-  for (const importedModule of meta.imports || []) {
-    loadModuleTree(importedModule, visited);
-  }
-
-  // Реєстрація провайдерів
-  for (const provider of meta.providers || []) {
-    container.register(provider, provider);
-  }
-
-  // Реєстрація контролерів
-  for (const controller of meta.controllers || []) {
-    container.register(controller, controller);
-  }
-}
-
 export function Factory(modules: any[]) {
   const app = express();
 
@@ -42,10 +19,6 @@ export function Factory(modules: any[]) {
 
   const listen = (port: number, callback?: () => void) => {
     const visitedModules = new Set();
-
-    for (const module of modules) {
-      loadModuleTree(module, visitedModules);
-    }
 
     for (const mod of visitedModules) {
 
