@@ -1,27 +1,37 @@
-import { Body, Controller, Get, Headers, Param, Post, Query, ForbiddenException } from '@nestjs/common';
-import {MessageDTO} from "../dto";
-import {Store} from "../store/store";
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { MessageDTO, UserDTO } from '../dto';
+import { MessagesService } from './messages.service';
 
 @Controller('/api/chats/:id/messages')
 export class MessagesController {
-  constructor(private store: Store) {}
+  constructor(private messagesService: MessagesService) {}
 
   @Get()
-  list(
-    @Headers('X-User') user: string,
-    @Param('id') chatId: string,
+  async list(
+    @Param('id') chatId: MessageDTO['chatId'],
     @Query('cursor') cursor?: string,
     @Query('limit') limit = '30',
   ) {
-    throw new ForbiddenException('Not implemented yet');
+    return this.messagesService.getChatMessages(chatId, {
+      cursor,
+      limit: +limit,
+    });
   }
 
   @Post()
   create(
-    @Headers('X-User') author: string,
-    @Param('id') chatId: string,
+    @Headers('X-User') user: UserDTO['name'],
+    @Param('id') chatId: MessageDTO['chatId'],
     @Body('text') text: string,
-  ): MessageDTO {
-    throw new ForbiddenException('Not implemented yet');
+  ): Promise<MessageDTO> {
+    return this.messagesService.addChatMessage(user, chatId, text);
   }
 }

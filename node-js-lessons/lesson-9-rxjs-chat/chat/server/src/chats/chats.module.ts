@@ -1,9 +1,13 @@
-import {Module} from '@nestjs/common';
-import {ChatsController} from './chats.controller';
-import {UsersModule} from "../users/users.module";
+import { Module } from '@nestjs/common';
+import { ChatsController } from './chats.controller';
+import { Store } from '../store/store';
+import { ChatsService } from './chats.service';
+import { WsModule } from '../ws/ws.module';
 
 @Module({
-  imports: [UsersModule],
+  imports: [WsModule],
   controllers: [ChatsController],
+  providers: [Store, ChatsService],
+  exports: [Store, ChatsService],
 })
-export class ChatsModule { }
+export class ChatsModule {}

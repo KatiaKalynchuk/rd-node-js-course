@@ -1,39 +1,47 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Headers, NotFoundException, Param, Patch, Post } from '@nestjs/common';
-import {ChatDTO} from "../dto";
-import Redis from "ioredis";
-import {Store} from "../store/store";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { ChatDTO, CreatedChatsDTO, UpdatedChatsDTO, UserDTO } from '../dto';
+import { ChatsService } from './chats.service';
 
 @Controller('/api/chats')
 export class ChatsController {
-  constructor(
-    private store: Store,
-    private redis: Redis
-  ) {}
+  constructor(private chatsService: ChatsService) {}
 
   @Post()
   async create(
-    @Headers('X-User') creator: string,
-    @Body() body: { name?: string; members: string[] },
+    @Headers('X-User') creator: UserDTO['name'],
+    @Body() body: CreatedChatsDTO,
   ): Promise<ChatDTO> {
-    throw new ForbiddenException('Not implemented yet');
+    return this.chatsService.create(creator, body);
   }
 
   @Get()
-  list(@Headers('X-User') user: string) {
-    throw new ForbiddenException('Not implemented yet');
+  list(@Headers('X-User') user: UserDTO['name']) {
+    return this.chatsService.getUserChats(user);
   }
 
   @Patch(':id/members')
   async patch(
-    @Headers('X-User') actor: string,
-    @Param('id') id: string,
-    @Body() dto: { add?: string[]; remove?: string[] },
+    @Headers('X-User') user: UserDTO['id'],
+    @Param('id') id: ChatDTO['id'],
+    @Body() dto: UpdatedChatsDTO,
   ) {
-    throw new ForbiddenException('Not implemented yet');
+    return this.chatsService.update(user, id, dto);
   }
 
   @Delete(':id')
-  delete(@Headers('X-User') admin: string, @Param('id') id: string) {
-    throw new ForbiddenException('Not implemented yet');
+  delete(
+    @Headers('X-User') user: UserDTO['id'],
+    @Param('id') id: ChatDTO['id'],
+  ) {
+    return this.chatsService.delete(user, id);
   }
 }
