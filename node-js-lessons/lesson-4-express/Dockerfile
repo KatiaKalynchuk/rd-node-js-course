@@ -6,13 +6,12 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY src ./src
+COPY build.js ./build.js
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["npm","run","build"]
-
-COPY dist ./dist
+RUN npm run build
 
 FROM cateka/node-base:18 AS runtime
 

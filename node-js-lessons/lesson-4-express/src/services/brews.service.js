@@ -1,6 +1,6 @@
 const filtersMap = {
   method: (value) => (brew) => brew.method === value,
-  ratingMin: (value) => (brew) => brew.rating >= value,
+  rating: (value) => (brew) => brew.rating >= value,
 };
 
 export function filteredBrews(brews, query = {}) {
@@ -8,7 +8,7 @@ export function filteredBrews(brews, query = {}) {
     .filter(([key, value]) => value && filtersMap[key])
     .map(([key, value]) => filtersMap[key](value));
 
-  return brews.filter(brew => activeFilters.every(fn => fn(brew)));
+  return brews.filter((brew) => activeFilters.every(fn => fn(brew)));
 }
 
 export class BrewsService {
