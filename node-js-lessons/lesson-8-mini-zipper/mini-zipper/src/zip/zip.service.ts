@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { Worker } from 'node:worker_threads';
@@ -13,7 +12,7 @@ import {
   OUTPUT_DIR,
   WORKER_PATH,
 } from '../system/constants.js';
-import { getRelativePath } from '../utils/path.js';
+import { getRelativePath, getAllImagePaths } from '../utils/path.js';
 import { SharedState, WorkerData } from '../types.js';
 
 const createDistFileDirectories = async () => {
@@ -31,20 +30,16 @@ const extractFiles = async (zipFilePath: string, outputPath: string) => {
   const zip = new AdmZip(zipFilePath);
   zip.extractAllTo(outputPath, true);
 
-  const files = await fs.readdir(outputPath);
-
-  return files
-    .filter((file) => /\.(jpe?g|png)$/i.test(file))
-    .map((file) => path.join(outputPath, file));
+  return getAllImagePaths(outputPath);
 };
+
+const mutex = new Mutex();
 
 const runThumbnailWorker = (
   workerPath: string,
   workerData: WorkerData,
   state: SharedState,
 ) => {
-  const mutex = new Mutex();
-
   return new Promise<void>((resolve) => {
     const worker = new Worker(workerPath, {
       workerData,
@@ -93,7 +88,7 @@ export class ZipService {
     return {
       processed: state.processed,
       skipped: state.skipped,
-      durationMs: Math.round(startTime - endTime),
+      durationMs: Math.round(endTime - startTime),
     };
   }
 }
