@@ -14,7 +14,6 @@ import { v4 as uuid } from 'uuid';
 import { OnModuleDestroy } from '@nestjs/common';
 import { MessagesService } from '../messages/messages.service';
 import { ChatDTO } from '../dto';
-import { Store } from '../store/store';
 
 const INSTANCE_ID = uuid(); // 🎯 унікальний для кожної репліки
 
@@ -34,7 +33,6 @@ export class ChatGateway implements OnGatewayConnection, OnModuleDestroy {
   constructor(
     private readonly redis: Redis,
     private messagesService: MessagesService,
-    private store: Store,
   ) {
     this.sub = this.redis.duplicate();
     this.sub.subscribe('chat-events');
@@ -124,6 +122,7 @@ export class ChatGateway implements OnGatewayConnection, OnModuleDestroy {
     this.event$.next({
       ev: 'message',
       data: message,
+      meta: { local: true },
     });
   }
 
@@ -139,6 +138,7 @@ export class ChatGateway implements OnGatewayConnection, OnModuleDestroy {
         user: client.data.user,
         isTyping: body.isTyping,
       },
+      meta: { local: true },
     });
   }
 }
