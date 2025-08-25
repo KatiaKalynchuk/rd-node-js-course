@@ -4,6 +4,8 @@ enum MetadataKeys {
   ROUTES = 'custom:routes',
   MODULE = 'custom:module',
   PARAMS = 'custom:params',
+  FILTERS = 'custom:filters',
+  PIPES = 'custom:pipes',
 }
 
 export default MetadataKeys;

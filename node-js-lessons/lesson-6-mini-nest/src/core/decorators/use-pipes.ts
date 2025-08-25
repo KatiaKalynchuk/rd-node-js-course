@@ -1,21 +1,20 @@
 import { ArgumentMetadata, Type } from '../types';
 import { isClass } from '../utils/is-class';
 import { container } from '../container';
+import MetadataKeys from './keys';
 
 export interface PipeTransform<T = any, R = any> {
   transform(value: T, metadata: ArgumentMetadata): R | Promise<R>;
 }
 
-export const PIPES_METADATA = Symbol('pipes');
-
 type PipesType = Type<PipeTransform> | InstanceType<Type<PipeTransform>>;
 
 export function UsePipes(
-  ...pipes: PipesType[] // посилання на класи-пайпи
+  ...pipes: PipesType[]
 ): ClassDecorator & MethodDecorator {
   return (target: any, key?: string | symbol) => {
     const where = key ? target[key] : target;
-    Reflect.defineMetadata(PIPES_METADATA, pipes, where);
+    Reflect.defineMetadata(MetadataKeys.PIPES, pipes, where);
   };
 }
 
@@ -25,12 +24,12 @@ export function getPipes(
   controller: Function,
   globalPipes: PipesType[] = []
 ): PipesType[] {
-  const classPipes = Reflect.getMetadata(PIPES_METADATA, controller) ?? [];
-  const methodPipes = Reflect.getMetadata(PIPES_METADATA, handler) ?? [];
+  const classPipes = Reflect.getMetadata(MetadataKeys.PIPES, controller) ?? [];
+  const methodPipes = Reflect.getMetadata(MetadataKeys.PIPES, handler) ?? [];
   return [...globalPipes, ...classPipes, ...methodPipes];
 }
 
-export async function runPipes(
+export async function runPipes (
   controllerCls: Function,
   handler: Function,
   value: unknown,

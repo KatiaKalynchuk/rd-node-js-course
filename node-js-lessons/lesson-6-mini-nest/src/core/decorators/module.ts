@@ -1,12 +1,11 @@
 import MetadataKeys from './keys';
 import { ClassType } from '../types';
 
-export type Provider = ClassType;
-
 type Metadata = {
-  controllers?: ClassType[];
-  providers?: Provider[];
-  imports?: ClassType[];
+  imports?: Array<ClassType>;
+  controllers?: Array<ClassType>;
+  providers?: Array<ClassType>;
+  exports?: Array<ClassType>;
 };
 
 export function Module(metadata: Metadata) {

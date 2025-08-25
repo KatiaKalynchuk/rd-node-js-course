@@ -1,19 +1,29 @@
 import 'reflect-metadata';
-// import {isController} from "./decorators";
 import { getInjectedTokenMap } from './decorators/inject';
+import { isClass } from './utils/is-class';
+import { ClassType } from './types';
+import MetadataKeys from './decorators/keys';
+
+type Token<T = unknown> = (new (...args: unknown[]) => T) | string | symbol;
 
 export class Container {
   #registered = new Map();
   #singletons = new Map();
 
-  resolve<T>(token: new (...args: any[]) => T): T {
+  resolve<T>(token: Token<T>): T {
     if (this.#singletons.has(token)) {
       return this.#singletons.get(token);
     }
 
     const cs = this.#registered.get(token);
+
     if(!cs) {
-      throw new Error(`Token ${token.name} is not registered.`);
+      throw new Error(`Token is not registered.`);
+    }
+
+    if (!isClass<T>(cs)) {
+      this.#singletons.set(token, cs);
+      return cs;
     }
 
     const deps: any[] = Reflect.getMetadata("design:paramtypes", token) || [];
@@ -22,8 +32,12 @@ export class Container {
     const resolvedDeps = deps.map((depType, index) => {
       const actualToken = injectMap.get(index) ?? depType;
 
+      if (!this.#registered.has(actualToken)) {
+        throw new Error(`Dependency "${actualToken.name || actualToken.toString()}" for "${cs.name}" is not registered.`);
+      }
+
       if (actualToken === token) {
-        throw new Error(`Circular dependency detected for token ${token.name}.`);
+        throw new Error(`Circular dependency detected for token.`);
       }
 
       return this.resolve(actualToken);
@@ -35,13 +49,22 @@ export class Container {
     return instance;
   }
 
-  register<T extends Function>(token: T, member: T): void {
+  register<T>(token: Token<T>, member: T): void {
     console.log('token', token, 'member', member)
-    if (this.#registered.has(token)) {
-      throw new Error(`Token ${token.name} is already registered.`);
-    }
+    if (this.#registered.has(token)) return;
 
     this.#registered.set(token, member);
+  }
+
+  registerModule(moduleClass: ClassType) {
+    const meta: any = Reflect.getMetadata(MetadataKeys.MODULE, moduleClass);
+    if (!meta) throw new Error(`Module "${moduleClass.name}" has no metadata.`);
+
+    (meta.imports || []).forEach((imp: ClassType) => this.registerModule(imp));
+
+    (meta.providers || []).forEach((provider: ClassType) => this.register(provider, provider));
+
+    (meta.controllers || []).forEach((controller: ClassType) => this.register(controller, controller));
   }
 }
 

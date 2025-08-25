@@ -8,11 +8,3 @@ export function Controller(prefix = ''): ClassDecorator {
     Reflect.defineMetadata(MetadataKeys.CONTROLLER, prefix, target);
   }
 }
-
-export function getControllerPrefix(target: any): string {
-  return Reflect.getMetadata(MetadataKeys.CONTROLLER, target) || '';
-}
-
-export function getAllControllers(): any[] {
-  return Array.from(CONTROLLERS);
-}

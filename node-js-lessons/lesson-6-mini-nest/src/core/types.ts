@@ -18,14 +18,3 @@ export interface ArgumentMetadata {
 export type ClassType<T = unknown> = {
   new (...args: any[]): T;
 };
-//
-// export const isObjectType = (value: unknown): value is Record<string, unknown> => {
-//   return typeof value === 'object' && value !== null && !Array.isArray(value);
-// };
-//
-// export const isClassType = <T>(value: unknown): value is ClassType<T> => {
-//   return (
-//     typeof value === 'function' &&
-//     /^class\s/.test(Function.prototype.toString.call(value))
-//   );
-// };

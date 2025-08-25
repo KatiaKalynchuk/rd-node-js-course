@@ -1,4 +1,6 @@
 import { Injectable } from '../../core/decorators/injectable';
+import { Config } from '../../core/decorators/сonfig';
+import { BooksConfig } from '../config';
 
 export interface Book {
   id: number;
@@ -7,6 +9,9 @@ export interface Book {
 
 @Injectable()
 export class BooksService {
+  constructor(@Config() private config: BooksConfig) {
+    console.log(this.config);
+  }
   #data: Book[] = [{ id: 1, title: '1984' }];
   findAll() {
     return this.#data;
