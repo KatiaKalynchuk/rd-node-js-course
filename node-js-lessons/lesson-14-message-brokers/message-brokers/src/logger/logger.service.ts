@@ -1,25 +1,41 @@
-import { Controller, Logger } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 
-@Controller()
+export type UserSignedUpPayload = {
+  id: string;
+  email: string;
+};
+
+@Injectable()
 export class LoggerService {
   private readonly logger = new Logger(LoggerService.name);
 
   constructor(private readonly redis: RedisService) {}
 
-  @MessagePattern('events.notifications')
-  async logNotifications(@Payload() message: { type: string, payload: { id: string, email: string} }) {
+  async handleEvent(event: { type: string; payload: UserSignedUpPayload }) {
     try {
-      this.logger.log(`Received from Kafka: ${JSON.stringify(message.type)}`);
+      this.logger.log(`Received event: ${JSON.stringify(event)}`);
 
-      // симуляція падіння
+      switch (event.type) {
+        case 'UserSignedUp':
+          this.handleUserSignedUp(event.payload);
+          break;
+        default:
+          this.logger.warn(`Unknown event type: ${event.type}`);
+      }
+
       if (Math.random() > 0.5) {
         throw new Error('Simulated crash in consumer');
       }
     } catch (err) {
-      this.logger.error(`Consumer crashed, pushing to Redis...`);
-      await this.redis.addRetry(message.type);
+      this.logger.error(`Consumer crashed: ${err.message}`, err.stack);
+      await this.redis.addRetry(event);
     }
+  }
+
+  private handleUserSignedUp(payload: UserSignedUpPayload) {
+    this.logger.log(
+      `Handling UserSignedUp: id=${payload.id}, email=${payload.email}`,
+    );
   }
 }
