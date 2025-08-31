@@ -6,3 +6,4 @@ export const TMP_DIR_UNZIPPED = path.join(TMP_DIR, 'unzipped');
 export const OUTPUT_DIR = './output';
 
 export const WORKER_PATH = '../workers/thumbnail.worker.js';
+export const SUPPORTED_IMAGE_EXTENSIONS = /\.(jpe?g|png)$/i;
