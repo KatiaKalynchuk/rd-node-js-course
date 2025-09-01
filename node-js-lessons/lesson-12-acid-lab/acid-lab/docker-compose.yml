@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16
+    container_name: acid_lab
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: acid_lab
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: acid_app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/acid_lab
+      NODE_ENV: development
+      PORT: 3000
+      MIGRATIONS_DIR: /app/src/migrations
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+      - ./src/migrations:/app/src/migrations
+
+volumes:
+  pgdata:
+  node_modules:
