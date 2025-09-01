@@ -1,12 +1,11 @@
-import { Account } from './account/entities/account.entity';
-import { Movement } from './movements/entities/movements.entity';
+import { Account } from './entities/account.entity';
 
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TransferModule } from './transfer/transfer.module';
 import { AppConfig } from './config/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccountModule } from './account/account.module';
+import { Movement } from './entities/movement.entity';
 
 @Module({
   imports: [
@@ -19,11 +18,8 @@ import { AccountModule } from './account/account.module';
         type: 'postgres',
         url: AppConfig.DATABASE_URL,
         entities: [Account, Movement],
-        synchronize: true,
-        // password: 'postqres',
       }),
     }),
-    AccountModule,
     TransferModule,
   ],
 })

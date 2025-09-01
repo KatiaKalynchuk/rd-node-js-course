@@ -1,8 +1,7 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16
+    container_name: acid_lab
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -20,6 +19,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: acid_app
     depends_on:
       db:
         condition: service_healthy
@@ -27,17 +27,14 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/acid_lab
       NODE_ENV: development
       PORT: 3000
-      MIGRATIONS_DIR: /app/migrations
+      MIGRATIONS_DIR: /app/src/migrations
     ports:
       - "3000:3000"
     volumes:
-      # 1 · Код → /app (гаряче оновлення)
       - ./:/app
-      # 2 · node_modules із контейнера в окремий том, щоб не перетирались
-      - nodemodules:/app/node_modules
-      # 3 migrations → /app/migrations (для ручного запуску)
-      - ./src/migrations:/app/migrations
+      - node_modules:/app/node_modules
+      - ./src/migrations:/app/src/migrations
 
 volumes:
   pgdata:
-  nodemodules:
+  node_modules:

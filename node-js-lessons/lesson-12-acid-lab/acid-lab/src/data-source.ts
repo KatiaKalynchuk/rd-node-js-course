@@ -1,13 +1,13 @@
-import { Account } from './account/entities/account.entity';
-import { Movement } from './movements/entities/movements.entity';
-
-import 'reflect-metadata';
+import 'dotenv/config';
 import { DataSource } from 'typeorm';
+import { AppConfig } from './config/config';
+import { Account } from './entities/account.entity';
+import { Movement } from './entities/movement.entity';
 
-export const AppDataSource = new DataSource({
+export default new DataSource({
   type: 'postgres',
-  url: process.env.DATABASE_URL,
-  synchronize: true, // auto-sync for demos; disable in prod
-  logging: false,
+  url: AppConfig.DATABASE_URL,
+  synchronize: false,
   entities: [Account, Movement],
+  migrations: ['src/migrations/**/*.ts'],
 });
